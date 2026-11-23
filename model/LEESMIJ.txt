@@ -1,0 +1,1 @@
+Zet hier model.json, metadata.json en weights.bin als je het model downloadt.

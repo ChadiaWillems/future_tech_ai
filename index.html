@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#1b1b2f">
+  <title>Doodle Quest</title>
+  <link rel="stylesheet" href="style.css">
+
+  <!-- TensorFlow.js + Teachable Machine (image). Worden enkel gebruikt als MODEL_URL in app.js is ingevuld. -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.3/dist/teachablemachine-image.min.js"></script>
+</head>
+<body>
+
+  <!-- STARTSCHERM -->
+  <section id="screen-start" class="screen active">
+    <div class="card">
+      <h1>✏️ Doodle Quest</h1>
+      <p class="sub">Teken wat gevraagd wordt en toon het aan de camera, voor de tijd op is!</p>
+
+      <label for="player-name">Jouw naam</label>
+      <input id="player-name" type="text" maxlength="20" placeholder="bv. Chadia" autocomplete="off">
+
+      <button id="btn-start" class="btn primary">Start spel</button>
+
+      <p id="mode-badge" class="badge">Model laden…</p>
+      <p id="highscore" class="small"></p>
+    </div>
+  </section>
+
+  <!-- SPELSCHERM -->
+  <section id="screen-game" class="screen">
+    <video id="camera" autoplay muted playsinline></video>
+    <div class="scan-frame"></div>
+
+    <header class="hud">
+      <span id="hud-round">Ronde 1/5</span>
+      <span id="hud-score">0 pt</span>
+    </header>
+
+    <div class="prompt">
+      <div id="prompt-emoji" class="emoji">🌸</div>
+      <div id="prompt-text" class="prompt-text">Teken een bloem</div>
+    </div>
+
+    <footer class="bottom">
+      <div class="timer">
+        <div id="timer-bar" class="timer-bar"></div>
+      </div>
+      <div class="timer-row">
+        <span id="timer-text">20 s</span>
+        <span id="confidence"></span>
+      </div>
+      <p id="status" class="status">Maak je klaar…</p>
+
+      <!-- Testknoppen: enkel zichtbaar zolang er nog geen model is -->
+      <div id="test-controls" class="test-controls hidden">
+        <button id="btn-success" class="btn ok">✅ Gelukt (test)</button>
+        <button id="btn-skip" class="btn ghost">⏭️ Overslaan</button>
+      </div>
+    </footer>
+
+    <div id="overlay" class="overlay hidden"></div>
+  </section>
+
+  <!-- EINDSCHERM -->
+  <section id="screen-end" class="screen">
+    <div class="card">
+      <h1>🏁 Klaar!</h1>
+      <p class="big" id="end-score">0 punten</p>
+      <ul id="end-results" class="results"></ul>
+      <button id="btn-again" class="btn primary">Opnieuw spelen</button>
+    </div>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>
