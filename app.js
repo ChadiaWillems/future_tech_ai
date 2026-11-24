@@ -8,7 +8,7 @@ const CONFIG = {
   // bv. "https://teachablemachine.withgoogle.com/models/AbCdEf123/"
   // of "./model/" als je de bestanden (model.json, metadata.json, weights.bin) in de map /model zet.
   // Leeg laten = testmodus met knoppen.
-  MODEL_URL: "",
+  MODEL_URL: "./model/",
 
   ROUNDS: 5,               // aantal rondes per spel
   ROUND_TIME: 20,          // seconden per tekening
