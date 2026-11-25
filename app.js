@@ -40,7 +40,7 @@ let score = 0;
 let results = [];
 let phase = "idle";        // idle | countdown | waitEmpty | drawing | result
 let deadline = 0;
-let holdStart = null;
+let recent = [];          // laatste voorspellingen voor het doel (voor een gemiddelde)
 let lastPredict = 0;
 let predicting = false;
 let rafId = null;
@@ -224,7 +224,7 @@ async function startRound() {
   $("hud-score").textContent = `${score} pt`;
   $("confidence").textContent = "";
   setTimer(CONFIG.ROUND_TIME);
-  holdStart = null;
+  recent = [];
 
   if (model && CONFIG.REQUIRE_EMPTY_FIRST) {
     phase = "waitEmpty";
@@ -257,7 +257,7 @@ function startDrawing() {
   showPrompt(d.emoji, d.text);
   sound.start();
   phase = "drawing";
-  holdStart = null;
+  recent = [];
   deadline = performance.now() + CONFIG.ROUND_TIME * 1000;
   $("status").textContent = model ? "Teken en houd je tekening in het kader" : "Testmodus: druk op 'Gelukt' als je klaar bent";
   loop();
@@ -303,15 +303,17 @@ async function handlePrediction(probs) {
   const p = probs[target] ?? 0;
   $("confidence").textContent = `${target}: ${Math.round(p * 100)}%`;
 
-  if (p >= CONFIG.THRESHOLD) {
-    holdStart ??= performance.now();
-    if (performance.now() - holdStart >= CONFIG.HOLD_MS) {
-      holdStart = null;
-      if (phase === "waitEmpty") startDrawing();
-      else if (phase === "drawing") endRound(true);
-    }
-  } else {
-    holdStart = null;
+  // Gemiddelde over ongeveer de laatste seconde: één wiebelend beeld onder de drempel
+  // reset de teller niet meteen meer.
+  const needed = Math.max(1, Math.round(CONFIG.HOLD_MS / CONFIG.PREDICT_EVERY_MS));
+  recent.push(p);
+  if (recent.length > needed) recent.shift();
+  const avg = recent.reduce((a, b) => a + b, 0) / recent.length;
+
+  if (recent.length >= needed && avg >= CONFIG.THRESHOLD) {
+    recent = [];
+    if (phase === "waitEmpty") startDrawing();
+    else if (phase === "drawing") endRound(true);
   }
 }
 
@@ -390,4 +392,13 @@ try {
   $("player-name").addEventListener("input", (e) => localStorage.setItem("dq-name", e.target.value));
 } catch (_) { /* negeren */ }
 showHighscore();
-loadModel();
+
+// Startknop pas activeren als het model klaar is met laden,
+// anders start het spel per ongeluk in testmodus.
+const startBtn = $("btn-start");
+startBtn.disabled = true;
+startBtn.textContent = "Model laden…";
+loadModel().finally(() => {
+  startBtn.disabled = false;
+  startBtn.textContent = "Start spel";
+});

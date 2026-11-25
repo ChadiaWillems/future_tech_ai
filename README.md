@@ -30,7 +30,7 @@ Zonder model draait de app in **testmodus** en kun je rondes handmatig afronden 
 
 ## Werking
 - De ronde start pas als het model eerst een **leeg blad** ziet, en pas dan verschijnt wat je moet tekenen. Daardoor kun je niet foppen met een tekening die je vooraf al gemaakt had.
-- Een tekening telt pas als de zekerheid **≥ 80%** is en dat **1 seconde stabiel** blijft.
+- Een tekening telt pas als de zekerheid **gemiddeld ≥ 80%** is over ongeveer **1 seconde**. Zo telt één toevallige uitschieter niet, maar ook één wiebelend beeld onder de drempel breekt het niet af.
 - Punten: 100 + 10 per resterende seconde.
 - Het model draait volledig in de browser (TensorFlow.js). **Camerabeelden verlaten het toestel nooit**, alleen naam + score worden opgeslagen.
 

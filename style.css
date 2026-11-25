@@ -212,3 +212,4 @@ input:focus { outline: none; border-color: var(--accent); }
   .hud { padding-top: 16px; }
   .bottom { padding-bottom: 18px; }
 }
+.btn:disabled { opacity: .5; cursor: wait; }
