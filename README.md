@@ -2,7 +2,7 @@
 
 Campus Quest – Future Technologies, lesweek 8 (AI)
 
-De app vraagt een tekening (bloem, zon of huis). Je tekent die op papier en houdt ze voor de camera van je smartphone. Herkent het model je tekening binnen 40 seconden met minstens 90% zekerheid, dan krijg je punten: hoe sneller, hoe meer.
+De app vraagt een tekening (bloem, zon of huis). Je tekent die op papier en houdt ze voor de camera van je smartphone. Herkent het model je tekening binnen 1 minuut met minstens 90% zekerheid, dan krijg je punten: hoe sneller, hoe meer.
 
 ## Hoe starten
 

@@ -11,7 +11,7 @@ const CONFIG = {
   MODEL_URL: "./model/",
 
   ROUNDS: 5,               // aantal rondes per spel
-  ROUND_TIME: 40,          // seconden per tekening
+  ROUND_TIME: 60,          // seconden per tekening
   THRESHOLD: 0.9,          // minimale zekerheid (90%)
   HOLD_MS: 1000,           // zo lang moet de voorspelling stabiel blijven
   PREDICT_EVERY_MS: 150,   // hoe vaak het model voorspelt
