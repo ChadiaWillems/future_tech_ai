@@ -145,6 +145,45 @@ async function startCamera() {
   try { await video.play(); } catch (err) { console.warn("video.play():", err); }
 }
 
+// ---------- GELUID ----------
+// Geluiden worden met de Web Audio API zelf gegenereerd: geen geluidsbestanden nodig.
+let audioCtx = null;
+
+// iOS laat pas geluid toe na een tik van de gebruiker: roep dit aan bij "Start spel".
+function unlockAudio() {
+  try {
+    audioCtx ??= new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+  } catch (_) { audioCtx = null; }
+}
+
+// Speelt een reeks tonen: [frequentie (Hz), start (s), duur (s)]
+function playTones(notes, type = "sine", volume = 0.25) {
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+  notes.forEach(([freq, start, dur]) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.0001, now + start);
+    gain.gain.exponentialRampToValueAtTime(volume, now + start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + start + dur);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(now + start);
+    osc.stop(now + start + dur + 0.05);
+  });
+}
+
+const sound = {
+  // Start met tekenen: twee korte stijgende piepjes
+  start: () => playTones([[660, 0, 0.12], [990, 0.15, 0.2]], "triangle"),
+  // Juist: vrolijk stijgend akkoordje
+  success: () => playTones([[523, 0, 0.15], [659, 0.12, 0.15], [784, 0.24, 0.15], [1047, 0.36, 0.35]], "triangle"),
+  // Fout / tijd op: twee dalende lage tonen
+  fail: () => playTones([[330, 0, 0.25], [220, 0.25, 0.45]], "sawtooth", 0.15),
+};
+
 // ---------- SPEL ----------
 function makeRounds() {
   const list = [];
@@ -159,6 +198,7 @@ function makeRounds() {
 }
 
 async function startGame() {
+  unlockAudio();
   // Eerst het spelscherm tonen: iOS speelt geen video af in een verborgen element
   show("game");
   $("status").textContent = "Camera starten…";
@@ -215,6 +255,7 @@ function showPrompt(emoji, text) {
 function startDrawing() {
   const d = rounds[roundIndex];
   showPrompt(d.emoji, d.text);
+  sound.start();
   phase = "drawing";
   holdStart = null;
   deadline = performance.now() + CONFIG.ROUND_TIME * 1000;
@@ -285,6 +326,9 @@ async function endRound(success) {
   if (success) points = 100 + Math.round(secondsLeft * 10); // sneller = meer punten
   score += points;
   results.push({ drawing: d, success, points });
+
+  if (success) sound.success();
+  else sound.fail();
 
   if (success) overlay(`✅ +${points}<small>${d.emoji} herkend!</small>`, "ok");
   else overlay(`⏰ Tijd op<small>${d.emoji} niet herkend</small>`, "bad");
