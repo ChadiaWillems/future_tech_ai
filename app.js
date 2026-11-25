@@ -12,7 +12,7 @@ const CONFIG = {
 
   ROUNDS: 5,               // aantal rondes per spel
   ROUND_TIME: 60,          // seconden per tekening
-  THRESHOLD: 0.9,          // minimale zekerheid (90%)
+  THRESHOLD: 0.8,          // minimale zekerheid (80%)
   HOLD_MS: 1000,           // zo lang moet de voorspelling stabiel blijven
   PREDICT_EVERY_MS: 150,   // hoe vaak het model voorspelt
   REQUIRE_EMPTY_FIRST: true, // ronde start pas als het model eerst een leeg blad ziet (anti-foppen)
