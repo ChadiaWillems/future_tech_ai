@@ -11,7 +11,7 @@ const CONFIG = {
   MODEL_URL: "./model/",
 
   ROUNDS: 5,               // aantal rondes per spel
-  ROUND_TIME: 20,          // seconden per tekening
+  ROUND_TIME: 40,          // seconden per tekening
   THRESHOLD: 0.9,          // minimale zekerheid (90%)
   HOLD_MS: 1000,           // zo lang moet de voorspelling stabiel blijven
   PREDICT_EVERY_MS: 150,   // hoe vaak het model voorspelt
@@ -154,15 +154,15 @@ async function startRound() {
   const d = rounds[roundIndex];
   $("hud-round").textContent = `Ronde ${roundIndex + 1}/${CONFIG.ROUNDS}`;
   $("hud-score").textContent = `${score} pt`;
-  $("prompt-emoji").textContent = d.emoji;
-  $("prompt-text").textContent = d.text;
   $("confidence").textContent = "";
   setTimer(CONFIG.ROUND_TIME);
   holdStart = null;
 
   if (model && CONFIG.REQUIRE_EMPTY_FIRST) {
     phase = "waitEmpty";
-    $("status").textContent = "📄 Toon eerst een leeg blad om te starten";
+    // Opdracht pas tonen na het lege blad: zo kan niemand vooraf tekenen (anti-foppen)
+    showPrompt("📄", "Toon een leeg blad");
+    $("status").textContent = "De opdracht verschijnt zodra het lege blad herkend is";
     hideOverlay();
     loop();
     return;
@@ -170,6 +170,7 @@ async function startRound() {
 
   // Zonder model: korte countdown
   phase = "countdown";
+  showPrompt(d.emoji, d.text);
   for (const n of [3, 2, 1]) {
     overlay(`${n}<small>${d.emoji} ${d.text}</small>`);
     await sleep(700);
@@ -178,7 +179,14 @@ async function startRound() {
   startDrawing();
 }
 
+function showPrompt(emoji, text) {
+  $("prompt-emoji").textContent = emoji;
+  $("prompt-text").textContent = text;
+}
+
 function startDrawing() {
+  const d = rounds[roundIndex];
+  showPrompt(d.emoji, d.text);
   phase = "drawing";
   holdStart = null;
   deadline = performance.now() + CONFIG.ROUND_TIME * 1000;

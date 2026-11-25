@@ -2,7 +2,7 @@
 
 Campus Quest – Future Technologies, lesweek 8 (AI)
 
-De app vraagt een tekening (bloem, zon of huis). Je tekent die op papier en houdt ze voor de camera van je smartphone. Herkent het model je tekening binnen 20 seconden met minstens 90% zekerheid, dan krijg je punten: hoe sneller, hoe meer.
+De app vraagt een tekening (bloem, zon of huis). Je tekent die op papier en houdt ze voor de camera van je smartphone. Herkent het model je tekening binnen 40 seconden met minstens 90% zekerheid, dan krijg je punten: hoe sneller, hoe meer.
 
 ## Hoe starten
 
@@ -29,7 +29,7 @@ Open daarna `http://localhost:8000`. Localhost mag de camera gebruiken, een gewo
 Zonder model draait de app in **testmodus** en kun je rondes handmatig afronden met knoppen.
 
 ## Werking
-- De ronde start pas als het model eerst een **leeg blad** ziet. Daardoor kun je niet foppen met een tekening die je vooraf al gemaakt had.
+- De ronde start pas als het model eerst een **leeg blad** ziet, en pas dan verschijnt wat je moet tekenen. Daardoor kun je niet foppen met een tekening die je vooraf al gemaakt had.
 - Een tekening telt pas als de zekerheid **≥ 90%** is en dat **1 seconde stabiel** blijft.
 - Punten: 100 + 10 per resterende seconde.
 - Het model draait volledig in de browser (TensorFlow.js). **Camerabeelden verlaten het toestel nooit**, alleen naam + score worden opgeslagen.
