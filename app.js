@@ -95,9 +95,34 @@ async function loadModel() {
 
 const norm = (label) => label.trim().toLowerCase();
 
-// Geeft { label: zekerheid } terug
+// Knipt precies het stuk van de camera uit dat binnen het gestippelde kader zichtbaar is.
+// De video wordt met "object-fit: cover" getoond, dus we rekenen schermcoördinaten om naar videopixels.
+const cropCanvas = document.createElement("canvas");
+cropCanvas.width = cropCanvas.height = 224;
+const cropCtx = cropCanvas.getContext("2d");
+const scanFrame = document.querySelector(".scan-frame");
+
+function cropToFrame() {
+  const vw = video.videoWidth, vh = video.videoHeight;
+  if (!vw || !vh) return null;
+  const vr = video.getBoundingClientRect();
+  const fr = scanFrame.getBoundingClientRect();
+  const scale = Math.max(vr.width / vw, vr.height / vh); // zoals object-fit: cover
+  const offsetX = (vr.width - vw * scale) / 2;
+  const offsetY = (vr.height - vh * scale) / 2;
+  const sx = (fr.left - vr.left - offsetX) / scale;
+  const sy = (fr.top - vr.top - offsetY) / scale;
+  const sw = fr.width / scale;
+  const sh = fr.height / scale;
+  cropCtx.drawImage(video, sx, sy, sw, sh, 0, 0, cropCanvas.width, cropCanvas.height);
+  return cropCanvas;
+}
+
+// Geeft { label: zekerheid } terug (enkel voor wat in het kader staat)
 async function predict() {
-  const preds = await model.predict(video);
+  const input = cropToFrame();
+  if (!input) return {};
+  const preds = await model.predict(input);
   const out = {};
   preds.forEach((p) => (out[norm(p.className)] = p.probability));
   return out;
