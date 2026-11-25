@@ -108,7 +108,13 @@ async function startCamera() {
     audio: false,
   });
   video.srcObject = stream;
-  await video.play();
+  // iOS Safari: wacht tot de video klaar is, maar blijf niet eeuwig hangen
+  await new Promise((resolve) => {
+    if (video.readyState >= 2) return resolve();
+    video.onloadeddata = () => resolve();
+    setTimeout(resolve, 3000);
+  });
+  try { await video.play(); } catch (err) { console.warn("video.play():", err); }
 }
 
 // ---------- SPEL ----------
@@ -125,11 +131,15 @@ function makeRounds() {
 }
 
 async function startGame() {
+  // Eerst het spelscherm tonen: iOS speelt geen video af in een verborgen element
+  show("game");
+  $("status").textContent = "Camera starten…";
   try {
     await startCamera();
   } catch (err) {
     console.error(err);
     alert("Camera niet beschikbaar. Geef toestemming en open de pagina via HTTPS.");
+    show("start");
     return;
   }
   rounds = makeRounds();
@@ -137,7 +147,6 @@ async function startGame() {
   score = 0;
   results = [];
   $("test-controls").classList.toggle("hidden", !!model);
-  show("game");
   startRound();
 }
 
