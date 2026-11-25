@@ -8,9 +8,9 @@ const CONFIG = {
   // bv. "https://teachablemachine.withgoogle.com/models/AbCdEf123/"
   // of "./model/" als je de bestanden (model.json, metadata.json, weights.bin) in de map /model zet.
   // Leeg laten = testmodus met knoppen.
-  MODEL_URL: "./model/",
+  MODEL_URL: "./model/v3/",   // nieuw model? zet het in een nieuwe map (v4, v5, …) zodat de browser geen oude bestanden uit de cache gebruikt
 
-  ROUNDS: 5,               // aantal rondes per spel
+  ROUNDS: 3,               // aantal rondes per spel (elke tekening maar één keer)
   ROUND_TIME: 60,          // seconden per tekening
   THRESHOLD: 0.8,          // minimale zekerheid (80%)
   HOLD_MS: 1000,           // zo lang moet de voorspelling stabiel blijven
@@ -88,7 +88,11 @@ async function loadModel() {
   } catch (err) {
     console.error(err);
     model = null;
-    badge.textContent = "⚠️ Model laden mislukt, testmodus";
+    // Toon de reden, zodat je weet wat er misliep
+    const reason = location.protocol === "file:"
+      ? "open de pagina via http://localhost:8000, niet door te dubbelklikken"
+      : (typeof tmImage === "undefined" ? "TensorFlow-bibliotheek niet geladen (internet?)" : err.message);
+    badge.textContent = "⚠️ Model laden mislukt: " + reason;
     badge.className = "badge test";
   }
 }
@@ -185,16 +189,15 @@ const sound = {
 };
 
 // ---------- SPEL ----------
+// Elke tekening komt precies één keer voor, in willekeurige volgorde,
+// zodat je een tekening niet opnieuw kunt gebruiken.
 function makeRounds() {
-  const list = [];
-  for (let i = 0; i < CONFIG.ROUNDS; i++) {
-    let pick;
-    do {
-      pick = DRAWINGS[Math.floor(Math.random() * DRAWINGS.length)];
-    } while (list.length && pick === list[list.length - 1] && DRAWINGS.length > 1);
-    list.push(pick);
+  const list = [...DRAWINGS];
+  for (let i = list.length - 1; i > 0; i--) {   // Fisher-Yates shuffle
+    const j = Math.floor(Math.random() * (i + 1));
+    [list[i], list[j]] = [list[j], list[i]];
   }
-  return list;
+  return list.slice(0, Math.min(CONFIG.ROUNDS, list.length));
 }
 
 async function startGame() {
@@ -220,7 +223,7 @@ async function startGame() {
 
 async function startRound() {
   const d = rounds[roundIndex];
-  $("hud-round").textContent = `Ronde ${roundIndex + 1}/${CONFIG.ROUNDS}`;
+  $("hud-round").textContent = `Ronde ${roundIndex + 1}/${rounds.length}`;
   $("hud-score").textContent = `${score} pt`;
   $("confidence").textContent = "";
   setTimer(CONFIG.ROUND_TIME);
@@ -339,7 +342,7 @@ async function endRound(success) {
   await sleep(1600);
 
   roundIndex++;
-  if (roundIndex < CONFIG.ROUNDS) startRound();
+  if (roundIndex < rounds.length) startRound();
   else endGame();
 }
 

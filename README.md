@@ -23,8 +23,8 @@ Open daarna `http://localhost:8000`. Localhost mag de camera gebruiken, een gewo
 2. De klassen moeten zo heten: `bloem`, `zon`, `huis`, `leeg blad` (hoofdletters maken niet uit). Extra klassen, zoals `niets`, mogen ook.
 3. Kies *Export Model → TensorFlow.js*:
    - **Upload my model**: kopieer de link, **of**
-   - **Download**: zet `model.json`, `metadata.json` en `weights.bin` in de map `/model`.
-4. Vul in `app.js` bij `MODEL_URL` je link in, of `"./model/"`.
+   - **Download**: zet `model.json`, `metadata.json` en `weights.bin` in een nieuwe map, bv. `/model/v4`. Gebruik voor elk nieuw model een nieuwe map, anders kan de browser een oud `weights.bin` uit de cache halen.
+4. Vul in `app.js` bij `MODEL_URL` je link in, of het pad naar de map (bv. `"./model/v4/"`).
 
 Zonder model draait de app in **testmodus** en kun je rondes handmatig afronden met knoppen.
 
