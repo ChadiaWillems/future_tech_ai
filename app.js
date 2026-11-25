@@ -71,12 +71,13 @@ async function loadModel() {
   try {
     const base = CONFIG.MODEL_URL.endsWith("/") ? CONFIG.MODEL_URL : CONFIG.MODEL_URL + "/";
     model = await tmImage.load(base + "model.json", base + "metadata.json");
-    const labels = model.getClassLabels();
+    // Klasnamen hoofdletterongevoelig vergelijken ("Zon" = "zon")
+    const labels = model.getClassLabels().map(norm);
     console.log("Model geladen met klassen:", labels);
 
     // Waarschuw als labels niet overeenkomen
-    const missing = DRAWINGS.map((d) => d.label).filter((l) => !labels.includes(l));
-    if (CONFIG.REQUIRE_EMPTY_FIRST && !labels.includes(CONFIG.EMPTY_LABEL)) missing.push(CONFIG.EMPTY_LABEL);
+    const missing = DRAWINGS.map((d) => d.label).filter((l) => !labels.includes(norm(l)));
+    if (CONFIG.REQUIRE_EMPTY_FIRST && !labels.includes(norm(CONFIG.EMPTY_LABEL))) missing.push(CONFIG.EMPTY_LABEL);
     if (missing.length) {
       badge.textContent = "⚠️ Model mist klassen: " + missing.join(", ");
       badge.className = "badge test";
@@ -92,11 +93,13 @@ async function loadModel() {
   }
 }
 
+const norm = (label) => label.trim().toLowerCase();
+
 // Geeft { label: zekerheid } terug
 async function predict() {
   const preds = await model.predict(video);
   const out = {};
-  preds.forEach((p) => (out[p.className] = p.probability));
+  preds.forEach((p) => (out[norm(p.className)] = p.probability));
   return out;
 }
 
@@ -230,7 +233,7 @@ function loop() {
 }
 
 async function handlePrediction(probs) {
-  const target = phase === "waitEmpty" ? CONFIG.EMPTY_LABEL : rounds[roundIndex].label;
+  const target = norm(phase === "waitEmpty" ? CONFIG.EMPTY_LABEL : rounds[roundIndex].label);
   const p = probs[target] ?? 0;
   $("confidence").textContent = `${target}: ${Math.round(p * 100)}%`;
 

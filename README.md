@@ -20,7 +20,7 @@ Open daarna `http://localhost:8000`. Localhost mag de camera gebruiken, een gewo
 
 ## Model toevoegen
 1. Train je model in [Teachable Machine](https://teachablemachine.withgoogle.com/) (Image Project).
-2. De klassen moeten **exact** zo heten: `bloem`, `zon`, `huis`, `leeg blad`.
+2. De klassen moeten zo heten: `bloem`, `zon`, `huis`, `leeg blad` (hoofdletters maken niet uit). Extra klassen, zoals `niets`, mogen ook.
 3. Kies *Export Model → TensorFlow.js*:
    - **Upload my model**: kopieer de link, **of**
    - **Download**: zet `model.json`, `metadata.json` en `weights.bin` in de map `/model`.
