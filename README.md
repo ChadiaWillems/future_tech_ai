@@ -34,15 +34,32 @@ Zonder model draait de app in **testmodus** en kun je rondes handmatig afronden 
 - Punten: 100 + 10 per resterende seconde.
 - Het model draait volledig in de browser (TensorFlow.js). **Camerabeelden verlaten het toestel nooit**, alleen naam + score worden opgeslagen.
 
+## Backend (Supabase)
+- De scores (naam, score, datum) worden opgeslagen in een **Supabase**-tabel `scores`. Op het eindscherm staat een **top 10**.
+- De tabel maak je aan met [`supabase.sql`](supabase.sql) (SQL Editor → Run).
+- **Row Level Security:** iedereen mag scores lezen en toevoegen, niemand mag ze aanpassen of verwijderen. Een score kan hoogstens 2100 zijn.
+- In `app.js` staat alleen de **publishable key** (publiek). De secret key staat nergens in de code.
+- **Camerabeelden worden nooit opgeslagen of verstuurd.**
+
 ## Dataset
 _(nog in te vullen: aantal tekeningen per klas, hoe gemaakt, digitaal vs. papier, verschillend licht/momenten)_
 
 ## Faaltabel
 | Situatie | Wat gebeurde er? | Wat paste ik aan? |
 |---|---|---|
-| | | |
-| | | |
-| | | |
+| Gezicht en achtergrond mee in beeld tijdens "toon een leeg blad" | Het model keek naar het hele camerabeeld in plaats van alleen het kader. "Leeg blad" haalde maar 15%. | De app knipt nu alleen het stuk binnen het gestippelde kader uit en geeft enkel dat aan het model. |
+| Tekening getoond met een licht bewegende hand | De zekerheid schommelde rond de drempel (80%) en zakte telkens kort onder. De tekening werd nooit aanvaard, omdat ze 1 seconde onafgebroken boven 80% moest blijven. | De app kijkt nu naar het gemiddelde over ongeveer 1 seconde in plaats van 1 seconde zonder onderbreking. |
+| _(zelf testen: ander licht / andere persoon / foto van een tekening op een scherm)_ | | |
+
+## Maatregelen tegen foppen
+| Truc | Maatregel in de app |
+|---|---|
+| Vooraf een tekening klaarleggen | Elke ronde start pas als het model een **leeg blad** herkent, en pas dan verschijnt wat je moet tekenen. |
+| Dezelfde tekening in meerdere rondes gebruiken | 3 rondes, en elke tekening (bloem, zon, huis) komt **maar één keer** voor. |
+| Een toevallige uitschieter van het model | De zekerheid moet **gemiddeld ≥ 80%** zijn over ongeveer 1 seconde. |
+| Iets anders of niets tonen | Extra klas **"Niets"**, zodat het model niet moet gokken tussen de tekeningen. |
+| Achtergrond of andere dingen in beeld | Alleen wat **binnen het kader** staat, gaat naar het model. |
+| **Nog niet opgelost:** een foto van een tekening op een gsm- of laptopscherm | Mogelijke uitbreiding: een extra klas "scherm", of MediaPipe Object Detector om schermen in beeld te herkennen. |
 
 ## Reflectie
 _(max. 200 woorden: hoe trigger moeilijker te foppen, welke bias in de dataset)_

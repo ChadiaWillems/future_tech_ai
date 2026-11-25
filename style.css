@@ -213,3 +213,18 @@ input:focus { outline: none; border-color: var(--accent); }
   .bottom { padding-bottom: 18px; }
 }
 .btn:disabled { opacity: .5; cursor: wait; }
+
+/* Scorebord */
+.lb-title { font-size: 1.2rem; margin-top: 6px; }
+.leaderboard { list-style: none; counter-reset: rank; display: flex; flex-direction: column; gap: 6px; text-align: left; }
+.leaderboard li:not(.small) {
+  counter-increment: rank;
+  display: flex;
+  justify-content: space-between;
+  background: rgba(255,255,255,.07);
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+.leaderboard li:not(.small) span:first-child::before { content: counter(rank) ". "; color: var(--accent); font-weight: 700; }
+.leaderboard li.small { text-align: center; }
+#screen-end .card { max-height: 92dvh; overflow-y: auto; }

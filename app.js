@@ -17,6 +17,11 @@ const CONFIG = {
   PREDICT_EVERY_MS: 150,   // hoe vaak het model voorspelt
   REQUIRE_EMPTY_FIRST: true, // ronde start pas als het model eerst een leeg blad ziet (anti-foppen)
   EMPTY_LABEL: "leeg blad",  // moet exact overeenkomen met je klasnaam in Teachable Machine
+
+  // Supabase (backend voor de scores). Vind je onder Project Settings > API.
+  // Leeg laten = scores enkel lokaal in de browser.
+  SUPABASE_URL: "https://vflauustfbekavvgvygg.supabase.co",
+  SUPABASE_KEY: "sb_publishable_NeuhJxpwrjhFne9PYRfJew_cBLDwZ1a", // publishable key (publiek). NOOIT de secret key hier zetten!
 };
 
 // De labels moeten EXACT overeenkomen met de klasnamen in Teachable Machine.
@@ -356,6 +361,7 @@ async function endGame() {
   show("end");
   await saveScore(getName(), score);
   showHighscore();
+  showLeaderboard();
 }
 
 // ---------- SCORES ----------
@@ -363,15 +369,61 @@ function getName() {
   return $("player-name").value.trim() || "Anoniem";
 }
 
-// TODO: vervang door je eigen backend (Firebase / Supabase).
-// Bewaar enkel naam + score + datum, NOOIT camerabeelden.
+// ---------- BACKEND (Supabase) ----------
+// We bewaren enkel naam + score + datum, NOOIT camerabeelden.
+let db = null;
+function getDb() {
+  if (db) return db;
+  if (!CONFIG.SUPABASE_URL || !CONFIG.SUPABASE_KEY || typeof supabase === "undefined") return null;
+  db = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+  return db;
+}
+
 async function saveScore(name, points) {
-  const entry = { name, score: points, date: new Date().toISOString() };
-  console.log("Score om op te slaan:", entry);
+  // Lokale highscore (per toestel)
   try {
     const best = Number(localStorage.getItem("dq-highscore") || 0);
     if (points > best) localStorage.setItem("dq-highscore", String(points));
   } catch (_) { /* localStorage niet beschikbaar */ }
+
+  // Online opslaan
+  const client = getDb();
+  if (!client) return;
+  const { error } = await client.from("scores").insert({ name: name.slice(0, 20), score: points });
+  if (error) console.error("Score opslaan mislukt:", error);
+}
+
+async function showLeaderboard() {
+  const list = $("leaderboard");
+  list.innerHTML = "";
+  const client = getDb();
+  if (!client) {
+    list.innerHTML = '<li class="small">Nog geen backend gekoppeld</li>';
+    return;
+  }
+  const { data, error } = await client
+    .from("scores")
+    .select("name, score, created_at")
+    .order("score", { ascending: false })
+    .limit(10);
+  if (error) {
+    console.error(error);
+    list.innerHTML = '<li class="small">Scorebord laden mislukt</li>';
+    return;
+  }
+  if (!data.length) {
+    list.innerHTML = '<li class="small">Nog geen scores, jij bent de eerste!</li>';
+    return;
+  }
+  data.forEach((row) => {
+    const li = document.createElement("li");
+    const n = document.createElement("span");
+    const sc = document.createElement("span");
+    n.textContent = row.name;          // textContent: geen HTML-injectie via namen
+    sc.textContent = row.score;
+    li.append(n, sc);
+    list.append(li);
+  });
 }
 
 function showHighscore() {
