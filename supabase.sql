@@ -21,3 +21,7 @@ create policy "Iedereen mag een score toevoegen"
   on public.scores for insert
   to anon
   with check (true);
+
+-- Rechten voor de Data API (nodig als je "permission denied" krijgt)
+grant usage on schema public to anon;
+grant select, insert on public.scores to anon;

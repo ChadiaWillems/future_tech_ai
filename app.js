@@ -408,7 +408,11 @@ async function showLeaderboard() {
     .limit(10);
   if (error) {
     console.error(error);
-    list.innerHTML = '<li class="small">Scorebord laden mislukt</li>';
+    const li = document.createElement("li");
+    li.className = "small";
+    li.textContent = "Scorebord laden mislukt: " + (error.message || error.code || "onbekende fout");
+    list.innerHTML = "";
+    list.append(li);
     return;
   }
   if (!data.length) {

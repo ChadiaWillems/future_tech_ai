@@ -62,7 +62,44 @@ _(nog in te vullen: aantal tekeningen per klas, hoe gemaakt, digitaal vs. papier
 | **Nog niet opgelost:** een foto van een tekening op een gsm- of laptopscherm | Mogelijke uitbreiding: een extra klas "scherm", of MediaPipe Object Detector om schermen in beeld te herkennen. |
 
 ## Reflectie
-_(max. 200 woorden: hoe trigger moeilijker te foppen, welke bias in de dataset)_
+
+**Moeilijker te foppen**
+Mijn app gebruikt al een paar maatregelen tegen foppen. Een ronde start pas als er een leeg blad getoond wordt, en pas daarna verschijnt wat je moet tekenen. Elke tekening komt ook maar één keer voor. Zo ben je zekerder dat spelers geen tekeningen klaarleggen of hergebruiken.
+_[aanvullen: welke zwakte is er nog (bv. een foto van een tekening op een gsm-scherm) en hoe zou je die oplossen?]_
+_[aanvullen: hoe kan de backend misbruikt worden en wat heb je ingesteld om dat te beperken?]_
+
+**Bias in mijn dataset**
+Mijn dataset bestaat vooral uit mijn eigen tekeningen, gemaakt met een zwarte balpen. Het model kent daardoor vooral mijn tekenstijl, en zal een tekening in potlood waarschijnlijk minder goed herkennen. Toen ik testte met een tekening van iemand anders of bij ander licht, werd die niet meteen herkend. Daarom heb ik de drempel verlaagd. Om dit te verbeteren zou ik meer tekeningen van andere mensen toevoegen, op ander papier, bij ander licht en in andere kleuren.
 
 ## AI-verantwoording
-_(welke tool, welke prompts, wat paste je aan)_
+
+**Tool:** Claude (Anthropic), model Claude Opus 5.5, via de Claude-app.
+
+**Waarvoor wel AI**
+| Onderdeel | Hoe ik AI gebruikte |
+|---|---|
+| Idee | Brainstorm op basis van mijn interesses (muziek/creatief, koken, sport, een spel, voorwerpen herkennen). Uit de voorstellen koos ik zelf Doodle Quest. |
+| Webapp | Claude schreef `index.html`, `style.css` en `app.js`: camera, rondes, timer, punten, geluid, het uitsnijden van het kader en de maatregelen tegen foppen. |
+| Backend | Koppeling met Supabase, `supabase.sql` (tabel + Row Level Security) en het top 10-scorebord. |
+| Fouten oplossen | Camera bleef hangen op iOS, cacheprobleem met `weights.bin`, de 80%-drempel die nooit gehaald werd, model laden voor het spel startte. |
+| Documentatie | Eerste versie van deze README, de faaltabel (rijen 1–2) en de tabel "Maatregelen tegen foppen". |
+
+**Waarvoor geen AI**
+- De dataset: alle tekeningen en foto's maakte ik zelf.
+- Het trainen en testen van het model in Teachable Machine.
+- De inhoud van de reflectie (Claude herschreef mijn tekst alleen taalkundig).
+- De korte uitleg over AutoML, overfitting en underfitting (voorbereiding).
+
+**Voorbeelden van prompts**
+- "Maak in deze folder (mijn repo) een webapp voor op mijn iPhone die de volgende tekeningen vraagt: bloem, zon & huis, en dan een timer die begint te lopen."
+- "Vervang het Teachable Machine-model door dit."
+- "Pas de opdracht pas aan nadat het lege blad herkend is, en maak de timer 40 seconden." (later: 1 minuut)
+- "Kijkt hij over heel de camera of enkel wat in dat vierkant zit?"
+- "Zet 3 rondes in plaats van 5, zodat er geen tekeningen hergebruikt kunnen worden."
+- "Voeg geluid toe als ze moeten beginnen met tekenen, als het juist is en als het fout is."
+
+**Wat ik zelf besliste of aanpaste**
+- De klassen (bloem, zon, huis, leeg blad) en later de extra klas **Niets**.
+- Eerst het lege blad tonen en pas daarna de opdracht laten zien.
+- 3 rondes met elke tekening maar één keer, timer van 1 minuut, drempel van 80%.
+- Drie keer opnieuw getraind met meer en betere foto's.
