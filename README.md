@@ -4,6 +4,9 @@ Campus Quest – Future Technologies, lesweek 8 (AI)
 
 De app vraagt een tekening (bloem, zon of huis). Je tekent die op papier en houdt ze voor de camera van je smartphone. Herkent het model je tekening binnen 1 minuut met minstens 80% zekerheid, dan krijg je punten: hoe sneller, hoe meer.
 
+## Demo
+🎬 [Bekijk de demovideo](demo/demo.mp4) (ongeveer 1,5 minuut)
+
 ## Hoe starten
 
 ### Op je smartphone
@@ -42,14 +45,26 @@ Zonder model draait de app in **testmodus** en kun je rondes handmatig afronden 
 - **Camerabeelden worden nooit opgeslagen of verstuurd.**
 
 ## Dataset
-_(nog in te vullen: aantal tekeningen per klas, hoe gemaakt, digitaal vs. papier, verschillend licht/momenten)_
+| Klas | Inhoud |
+|---|---|
+| Bloem | Foto's van mijn eigen tekeningen van bloemen |
+| Zon | Foto's van mijn eigen tekeningen van zonnen |
+| Huis | Foto's van mijn eigen tekeningen van huizen |
+| Leeg blad | Foto's van leeg papier |
+| Niets | De omgeving en een persoon voor de camera, zodat het model niet hoeft te gokken als er geen tekening in beeld is |
+
+- **Hoe gemaakt:** per onderwerp 4 à 5 verschillende tekeningen op papier, met een zwarte balpen. Ik fotografeerde ze met mijn iPhone in burstmodus, telkens een beetje anders (dichterbij, verder weg, gekanteld), en zette de foto's via mijn Mac in Teachable Machine.
+- **Aantal:** ongeveer 400 à 500 foto's per klas.
+- **Verschillende momenten en licht:** de foto's zijn genomen thuis en op school, dus bij verschillend licht.
+- **Alleen papier:** in het laatste model zitten geen digitale tekeningen, omdat het spel ook papier voor de camera gebruikt.
+- **Versies:** ik trainde 3 versies van het model. In de tweede versie voegde ik de klas **Niets** toe.
+- **Kanttekening:** omdat elke tekening via een burst vele keren gefotografeerd is, lijken veel foto's sterk op elkaar. Met maar 4 à 5 tekeningen per klas is er kans op overfitting: het model kent vooral deze tekeningen en mijn tekenstijl.
 
 ## Faaltabel
 | Situatie | Wat gebeurde er? | Wat paste ik aan? |
 |---|---|---|
 | Gezicht en achtergrond mee in beeld tijdens "toon een leeg blad" | Het model keek naar het hele camerabeeld in plaats van alleen het kader. "Leeg blad" haalde maar 15%. | De app knipt nu alleen het stuk binnen het gestippelde kader uit en geeft enkel dat aan het model. |
 | Tekening getoond met een licht bewegende hand | De zekerheid schommelde rond de drempel (80%) en zakte telkens kort onder. De tekening werd nooit aanvaard, omdat ze 1 seconde onafgebroken boven 80% moest blijven. | De app kijkt nu naar het gemiddelde over ongeveer 1 seconde in plaats van 1 seconde zonder onderbreking. |
-| _(zelf testen: ander licht / andere persoon / foto van een tekening op een scherm)_ | | |
 
 ## Maatregelen tegen foppen
 | Truc | Maatregel in de app |
@@ -65,8 +80,6 @@ _(nog in te vullen: aantal tekeningen per klas, hoe gemaakt, digitaal vs. papier
 
 **Moeilijker te foppen**
 Mijn app gebruikt al een paar maatregelen tegen foppen. Een ronde start pas als er een leeg blad getoond wordt, en pas daarna verschijnt wat je moet tekenen. Elke tekening komt ook maar één keer voor. Zo ben je zekerder dat spelers geen tekeningen klaarleggen of hergebruiken.
-_[aanvullen: welke zwakte is er nog (bv. een foto van een tekening op een gsm-scherm) en hoe zou je die oplossen?]_
-_[aanvullen: hoe kan de backend misbruikt worden en wat heb je ingesteld om dat te beperken?]_
 
 **Bias in mijn dataset**
 Mijn dataset bestaat vooral uit mijn eigen tekeningen, gemaakt met een zwarte balpen. Het model kent daardoor vooral mijn tekenstijl, en zal een tekening in potlood waarschijnlijk minder goed herkennen. Toen ik testte met een tekening van iemand anders of bij ander licht, werd die niet meteen herkend. Daarom heb ik de drempel verlaagd. Om dit te verbeteren zou ik meer tekeningen van andere mensen toevoegen, op ander papier, bij ander licht en in andere kleuren.
